@@ -153,6 +153,25 @@ namespace Application.Services
             await _amenityRepository.RemoveHallAmenityAsync(hallAmenity);
         }
 
+        public async Task<HallAmenityResponse> UpdateAmenityPriceAsync(Guid hallId, Guid amenityId, UpdateHallAmenityPriceRequest request)
+        {
+            var hallAmenity = await _amenityRepository.GetHallAmenityAsync(hallId, amenityId);
+            if (hallAmenity == null)
+            {
+                throw new NotFoundException($"Amenity {amenityId} not found for hall {hallId}.");
+            }
+
+            hallAmenity.Price = request.Price;
+            await _amenityRepository.UpdateHallAmenityAsync(hallAmenity);
+
+            return new HallAmenityResponse
+            {
+                Id = hallAmenity.Amenity.Id,
+                Name = hallAmenity.Amenity.Name,
+                Price = hallAmenity.Price
+            };
+        }
+
         private static HallResponse MapToResponse(Hall hall) => new()
         {
             Id = hall.Id,

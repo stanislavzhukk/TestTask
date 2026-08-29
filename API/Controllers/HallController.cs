@@ -46,6 +46,13 @@ namespace API.Controllers
             return Ok(result);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteHall(Guid id)
+        {
+            await _hallService.DeleteHallAsync(id);
+            return NoContent();
+        }
+
         [HttpPut("{hallId}/amenities")]
         public async Task<ActionResult<HallAmenityResponse>> AddAmenity(Guid hallId, [FromBody] CreateAmenityRequest request)
         {
@@ -60,11 +67,11 @@ namespace API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteHall(Guid id)
+        [HttpPatch("{hallId}/amenities/{amenityId}")]
+        public async Task<ActionResult<HallAmenityResponse>> UpdateAmenityPrice(Guid hallId, Guid amenityId, [FromBody] UpdateHallAmenityPriceRequest request)
         {
-            await _hallService.DeleteHallAsync(id);
-            return NoContent();
+            var result = await _hallService.UpdateAmenityPriceAsync(hallId, amenityId, request);
+            return Ok(result);
         }
     }
 }

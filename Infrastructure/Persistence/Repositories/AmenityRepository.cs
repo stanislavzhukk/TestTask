@@ -52,5 +52,11 @@ namespace Infrastructure.Persistence.Repositories
             _context.HallAmenities.Remove(hallAmenity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateHallAmenityAsync(HallAmenity hallAmenity)
+        {
+            _context.HallAmenities.Update(hallAmenity);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -13,6 +13,7 @@ namespace Application.Interfaces
         Task<HallResponse> UpdateHallAsync(Guid hallId, UpdateHallRequest request);
         Task<HallAmenityResponse> AddAmenityAsync(Guid hallId, CreateAmenityRequest request);
         Task RemoveAmenityAsync(Guid hallId, Guid amenityId);
+        Task<HallAmenityResponse> UpdateAmenityPriceAsync(Guid hallId, Guid amenityId, UpdateHallAmenityPriceRequest request);
         Task DeleteHallAsync(Guid hallId);
     }
 }

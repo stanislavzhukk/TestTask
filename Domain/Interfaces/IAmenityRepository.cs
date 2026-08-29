@@ -11,5 +11,6 @@ namespace Domain.Interfaces
 
         Task<HallAmenity?> GetHallAmenityAsync(Guid hallId, Guid amenityId);
         Task RemoveHallAmenityAsync(HallAmenity hallAmenity);
+        Task UpdateHallAmenityAsync(HallAmenity hallAmenity);
     }
 }
