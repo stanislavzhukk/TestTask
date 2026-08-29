@@ -2,6 +2,7 @@
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Data;
 
 namespace Infrastructure.Persistence
 {
@@ -20,7 +21,11 @@ namespace Infrastructure.Persistence
 
             await strategy.ExecuteAsync(async () =>
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
+                // Serializable isolation protects against a race condition when two bookings
+                // for the same hall with overlapping time ranges are created concurrently
+                // under ReadCommitted (the default), two parallel requests might not see
+                // each other's changes and both could pass the overlap check.
+                using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
                 try
                 {
                     await action();

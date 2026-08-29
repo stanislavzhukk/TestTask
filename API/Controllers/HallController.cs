@@ -53,7 +53,7 @@ namespace API.Controllers
             return NoContent();
         }
 
-        [HttpPut("{hallId}/amenities")]
+        [HttpPost("{hallId}/amenities")]
         public async Task<ActionResult<HallAmenityResponse>> AddAmenity(Guid hallId, [FromBody] CreateAmenityRequest request)
         {
             var result = await _hallService.AddAmenityAsync(hallId, request);

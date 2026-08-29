@@ -1,5 +1,6 @@
 ﻿
 
+using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -22,10 +23,13 @@ namespace Application.Services
             _amenityRepository = amenityRepository;
         }
 
-        public async Task<decimal> CalculateTotalPriceAsync(Guid hallId,decimal baseHourlyRate, DateTime start, DateTime end, List<Guid> selectedAmenityIds)
+        public async Task<decimal> CalculateTotalPriceAsync(Guid hallId, decimal baseHourlyRate, DateTime start, DateTime end, List<Guid> selectedAmenityIds)
         {
             var hallCost = CalculateHallCost(baseHourlyRate, start, end);
+            Console.WriteLine($"Calculated hall cost: {hallCost}");
+            Console.WriteLine($"Calculating total price for hall {hallId} from {start} to {end} with base hourly rate {baseHourlyRate}");
             var amenitiesCost = await CalculateAmenityCost(hallId ,selectedAmenityIds);
+            Console.WriteLine($"Calculated amenities cost: {amenitiesCost}");
             return hallCost + amenitiesCost;
         }
 
@@ -63,7 +67,18 @@ namespace Application.Services
             return total;
         }
 
-        private RateType GetRateType(TimeOnly time) => TimeRanges.FirstOrDefault(r => time >= r.Start && time < r.End).Type;
+        private RateType GetRateType(TimeOnly time)
+        {
+            foreach (var range in TimeRanges)
+            {
+                if (time >= range.Start && time < range.End)
+                {
+                    return range.Type;
+                }
+            }
+
+            throw new BadRequestException($"Booking time {time} falls outside of operating hours (06:00–23:00).");
+        }
 
         private decimal GetMultiplier(RateType rateType) => rateType switch
         {

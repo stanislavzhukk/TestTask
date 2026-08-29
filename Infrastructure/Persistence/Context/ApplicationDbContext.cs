@@ -16,6 +16,8 @@ namespace Infrastructure.Persistence.Context
         public DbSet<Hall> Halls { get; set; }
         public DbSet<Amenity> Amenities { get; set; }
         public DbSet<HallAmenity> HallAmenities { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<BookingAmenity> BookingAmenities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
