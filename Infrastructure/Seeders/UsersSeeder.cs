@@ -11,7 +11,7 @@ namespace Infrastructure.Seeders
             var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
-            var adminEmail = "admin@example.pl";
+            var adminEmail = "admin@example.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)
             {
@@ -38,9 +38,7 @@ namespace Infrastructure.Seeders
                 }
             }
 
-            Console.WriteLine($"Admin - {adminUser.Id}");
-
-            var userEmail = "user@example.pl";
+            var userEmail = "user@example.com";
             var normalUser = await userManager.FindByEmailAsync(userEmail);
             if (normalUser == null)
             {
@@ -66,8 +64,6 @@ namespace Infrastructure.Seeders
                     await userManager.AddToRoleAsync(normalUser, "User");
                 }
             }
-            Console.WriteLine($"Admin - {adminUser.Id}");
-            Console.WriteLine($"User - {normalUser.Id}");
         }
     }
 }

@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-using Application.DTO.Requests.Auth;
+﻿using Application.DTO.Requests.Auth;
 using Application.DTO.Responses;
+using Application.Exceptions;
 using Application.Interfaces;
 using Domain.Interfaces;
 using Domain.Models;
+using Microsoft.AspNetCore.Identity;
 
-namespace Services.Services
+namespace Application.Services
 {
     public class AuthService : IAuthService
     {
@@ -19,7 +19,8 @@ namespace Services.Services
             UserManager<User> userManager,
             IRefreshTokensRepository refreshTokens,
             ITokenService jwtService,
-            IHashService hashService)
+            IHashService hashService
+            )
         {
             _userManager = userManager;
             _refreshTokensRepository = refreshTokens;
@@ -32,14 +33,19 @@ namespace Services.Services
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new InvalidOperationException("Invalid email or password");
+                throw new UnauthorizedException("Auth_InvalidCredentials");
             }
 
             var isValid = await _userManager.CheckPasswordAsync(user, request.Password);
 
             if (!isValid)
             {
-                throw new InvalidOperationException("Invalid email or password");
+                throw new UnauthorizedException("Auth_InvalidCredentials");
+            }
+
+            if (user.EmailConfirmed != true)
+            {
+                throw new ForbiddenException("Auth_EmailNotConfirmed");
             }
 
             var accessToken = await _jwtService.GenerateAccessTokenAsync(user);
@@ -56,7 +62,7 @@ namespace Services.Services
                 RefreshToken = rawRefreshToken,
                 User = new UserDataResponse
                 {
-                    Id = user.Id.ToString(),
+                    Id = user.Id,
                     Name = user.Name,
                     Surname = user.Surname,
                     Email = user.Email!
@@ -70,7 +76,7 @@ namespace Services.Services
             var tokenEntity = await _refreshTokensRepository.GetRefreshTokenAsync(hashedToken);
             if (tokenEntity == null)
             {
-                throw new SecurityTokenException("Invalid refresh token");
+                throw new UnauthorizedException("Auth_InvalidRefreshToken");
             }
 
             if (!tokenEntity.IsActive)
@@ -80,7 +86,7 @@ namespace Services.Services
                     tokenEntity.Revoked = DateTime.UtcNow;
                     await _refreshTokensRepository.UpdateAsync(tokenEntity);
                 }
-                throw new SecurityTokenException("Refresh token has expired");
+                throw new RefreshTokenException("Auth_ExpiredRefreshToken");
             }
 
             if (tokenEntity.Expires < DateTime.UtcNow.AddHours(12))
@@ -92,7 +98,7 @@ namespace Services.Services
             var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
             if (user == null)
             {
-                throw new SecurityTokenException("User not found");
+                throw new UnauthorizedException("User_NotFound");
             }
 
             var newAccessToken = await _jwtService.GenerateAccessTokenAsync(user);
@@ -102,7 +108,7 @@ namespace Services.Services
                 AccessToken = newAccessToken,
                 User = new UserDataResponse
                 {
-                    Id = user.Id.ToString(),
+                    Id = user.Id,
                     Name = user.Name,
                     Surname = user.Surname,
                     Email = user.Email!
@@ -116,48 +122,56 @@ namespace Services.Services
             var tokenEntity = await _refreshTokensRepository.GetRefreshTokenAsync(hashedToken);
             if (tokenEntity == null || !tokenEntity.IsActive)
             {
-                throw new SecurityTokenException("Invalid refresh token");
+                throw new UnauthorizedException("Auth_InvalidRefreshToken");
             }
 
             await _refreshTokensRepository.RevokeTokenAsync(tokenEntity);
         }
 
-        public async Task<User> RegisterAsync(RegisterRequest request)
+        public async Task<UserDataResponse> RegisterAsync(RegisterRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user != null)
             {
-                throw new InvalidOperationException("Email is already in use");
+                throw new BadRequestException("Auth_EmailIsAlreadyTaken");
             }
+
+            var userId = Guid.NewGuid();
 
             var userRecord = new User
             {
-                Id = Guid.NewGuid(),
+                Id = userId,
                 Name = request.Name,
                 Surname = request.Surname ?? string.Empty,
                 CreatedAt = DateTime.UtcNow,
                 LastUpdate = DateTime.UtcNow,
                 Email = request.Email,
                 NormalizedEmail = request.Email.ToUpper(),
-                UserName = $"{request.Name + request.Surname}",
-                NormalizedUserName = request.Name.ToUpper(),
+                UserName = userId.ToString(),
+                NormalizedUserName = userId.ToString().ToUpper(),
                 EmailConfirmed = false,
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
                 SecurityStamp = Guid.NewGuid().ToString()
             };
 
-            var result = await _userManager.CreateAsync(userRecord, request.Password);
-            if (!result.Succeeded)
+            var response = await _userManager.CreateAsync(userRecord, request.Password);
+            if (!response.Succeeded)
             {
-                var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"User creation failed: {errors}");
+                var errors = response.Errors.Select(e => e.Code).ToList();
+
+                throw new BadRequestException("", errors);
             }
 
             await _userManager.AddToRoleAsync(userRecord, "User");
-            //verify email logic can be added here
-            return userRecord;
-        }
 
+            return new UserDataResponse
+            {
+                Id = userRecord.Id,
+                Name = userRecord.Name,
+                Email = userRecord.Email!,
+                Surname = userRecord.Surname,
+            };
+        }
     }
 }
