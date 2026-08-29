@@ -33,19 +33,19 @@ namespace Application.Services
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
-                throw new UnauthorizedException("Auth_InvalidCredentials");
+                throw new UnauthorizedException("Invalid credentials provided.");
             }
 
             var isValid = await _userManager.CheckPasswordAsync(user, request.Password);
 
             if (!isValid)
             {
-                throw new UnauthorizedException("Auth_InvalidCredentials");
+                throw new UnauthorizedException("Invalid credentials provided.");
             }
 
             if (user.EmailConfirmed != true)
             {
-                throw new ForbiddenException("Auth_EmailNotConfirmed");
+                throw new ForbiddenException("Email not confirmed.");
             }
 
             var accessToken = await _jwtService.GenerateAccessTokenAsync(user);
@@ -76,7 +76,7 @@ namespace Application.Services
             var tokenEntity = await _refreshTokensRepository.GetRefreshTokenAsync(hashedToken);
             if (tokenEntity == null)
             {
-                throw new UnauthorizedException("Auth_InvalidRefreshToken");
+                throw new UnauthorizedException("Invalid refresh token provided.");
             }
 
             if (!tokenEntity.IsActive)
@@ -86,7 +86,7 @@ namespace Application.Services
                     tokenEntity.Revoked = DateTime.UtcNow;
                     await _refreshTokensRepository.UpdateAsync(tokenEntity);
                 }
-                throw new RefreshTokenException("Auth_ExpiredRefreshToken");
+                throw new RefreshTokenException("Refresh token expired.");
             }
 
             if (tokenEntity.Expires < DateTime.UtcNow.AddHours(12))
@@ -98,7 +98,7 @@ namespace Application.Services
             var user = await _userManager.FindByIdAsync(tokenEntity.UserId.ToString());
             if (user == null)
             {
-                throw new UnauthorizedException("User_NotFound");
+                throw new UnauthorizedException("User not found.");
             }
 
             var newAccessToken = await _jwtService.GenerateAccessTokenAsync(user);
@@ -122,7 +122,7 @@ namespace Application.Services
             var tokenEntity = await _refreshTokensRepository.GetRefreshTokenAsync(hashedToken);
             if (tokenEntity == null || !tokenEntity.IsActive)
             {
-                throw new UnauthorizedException("Auth_InvalidRefreshToken");
+                throw new UnauthorizedException("Invalid refresh token provided.");
             }
 
             await _refreshTokensRepository.RevokeTokenAsync(tokenEntity);
@@ -134,7 +134,7 @@ namespace Application.Services
 
             if (user != null)
             {
-                throw new BadRequestException("Auth_EmailIsAlreadyTaken");
+                throw new BadRequestException("Email already taken.");
             }
 
             var userId = Guid.NewGuid();
@@ -158,7 +158,7 @@ namespace Application.Services
             var response = await _userManager.CreateAsync(userRecord, request.Password);
             if (!response.Succeeded)
             {
-                var errors = response.Errors.Select(e => e.Code).ToList();
+                var errors = response.Errors.Select(e => e.Description).ToList();
 
                 throw new BadRequestException("", errors);
             }

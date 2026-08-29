@@ -60,19 +60,7 @@ namespace Application.Services
                 response = await _hallRepository.CreateHallAsync(hall);
             });
 
-            return new HallResponse
-            {
-                Id = response.Id,
-                Name = response.Title,
-                Capacity = response.Capacity,
-                Price = response.BaseHourlyRate,
-                Services = response.AvailableAmenities.Select(a => new HallAmenityResponse
-                {
-                    Id = a.Amenity.Id,
-                    Name = a.Amenity.Name,
-                    Price = a.Price
-                }).ToList()
-            };
+            return MapToResponse(response);
         }
 
         public async Task DeleteHallAsync(Guid hallId)
@@ -90,19 +78,7 @@ namespace Application.Services
         public async Task<List<HallResponse>> GetAllHallsAsync()
         {
             var halls = await _hallRepository.GetAllHallsAsync();
-            return halls.Select(h => new HallResponse
-            {
-                Id = h.Id,
-                Name = h.Title,
-                Capacity = h.Capacity,
-                Price = h.BaseHourlyRate,
-                Services = h.AvailableAmenities.Select(a => new HallAmenityResponse
-                {
-                    Id = a.Amenity.Id,
-                    Name = a.Amenity.Name,
-                    Price = a.Price
-                }).ToList()
-            }).ToList();
+            return halls.Select(MapToResponse).ToList();
         }
 
         public async Task<HallResponse> GetHallByIdAsync(Guid hallId)
@@ -112,19 +88,7 @@ namespace Application.Services
             {
                 throw new KeyNotFoundException($"Hall with ID {hallId} not found.");
             }
-            return new HallResponse
-            {
-                Id = hall.Id,
-                Name = hall.Title,
-                Capacity = hall.Capacity,
-                Price = hall.BaseHourlyRate,
-                Services = hall.AvailableAmenities.Select(a => new HallAmenityResponse
-                {
-                    Id = a.Amenity.Id,
-                    Name = a.Amenity.Name,
-                    Price = a.Price
-                }).ToList()
-            };
+            return MapToResponse(hall);
         }
 
         public async Task<HallResponse> UpdateHallAsync(Guid hallId, UpdateHallRequest request)
