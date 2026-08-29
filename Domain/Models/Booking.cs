@@ -13,6 +13,6 @@
         public DateTime CreatedAt { get; set; }
 
         public Hall Hall { get; set; } = null!;
-        public ICollection<BookingService> SelectedServices { get; set; } = new List<BookingService>();
+        public ICollection<BookingAmenity> SelectedAmenities { get; set; } = new List<BookingAmenity>();
     }
 }

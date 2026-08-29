@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260829100518_RemoveModelExample")]
+    [Migration("20260829120727_RemoveModelExample")]
     partial class RemoveModelExample
     {
         /// <inheritdoc />
@@ -24,6 +24,115 @@ namespace Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("BookingAmenity", b =>
+                {
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AmenityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("PriceAtBooking")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("BookingId", "AmenityId");
+
+                    b.HasIndex("AmenityId");
+
+                    b.ToTable("BookingAmenity");
+                });
+
+            modelBuilder.Entity("Domain.Models.Amenity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Amenities");
+                });
+
+            modelBuilder.Entity("Domain.Models.Booking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("HallId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HallId", "StartTime", "EndTime");
+
+                    b.ToTable("Booking");
+                });
+
+            modelBuilder.Entity("Domain.Models.Hall", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("BaseHourlyRate")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Halls");
+                });
+
+            modelBuilder.Entity("Domain.Models.HallAmenity", b =>
+                {
+                    b.Property<Guid>("HallId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AmenityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("HallId", "AmenityId");
+
+                    b.HasIndex("AmenityId");
+
+                    b.ToTable("HallAmenities");
+                });
 
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
                 {
@@ -266,6 +375,55 @@ namespace Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BookingAmenity", b =>
+                {
+                    b.HasOne("Domain.Models.Amenity", "Amenity")
+                        .WithMany()
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Booking", "Booking")
+                        .WithMany("SelectedAmenities")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("Domain.Models.Booking", b =>
+                {
+                    b.HasOne("Domain.Models.Hall", "Hall")
+                        .WithMany("Bookings")
+                        .HasForeignKey("HallId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hall");
+                });
+
+            modelBuilder.Entity("Domain.Models.HallAmenity", b =>
+                {
+                    b.HasOne("Domain.Models.Amenity", "Amenity")
+                        .WithMany()
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Hall", "Hall")
+                        .WithMany("AvailableAmenities")
+                        .HasForeignKey("HallId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Hall");
+                });
+
             modelBuilder.Entity("Domain.Models.RefreshToken", b =>
                 {
                     b.HasOne("Domain.Models.User", "User")
@@ -326,6 +484,18 @@ namespace Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Models.Booking", b =>
+                {
+                    b.Navigation("SelectedAmenities");
+                });
+
+            modelBuilder.Entity("Domain.Models.Hall", b =>
+                {
+                    b.Navigation("AvailableAmenities");
+
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>

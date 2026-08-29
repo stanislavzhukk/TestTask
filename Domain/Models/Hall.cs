@@ -8,7 +8,7 @@
         public decimal BaseHourlyRate { get; set; }
         public bool IsActive { get; set; } = true;
 
-        public ICollection<HallService> AvailableServices { get; set; } = new List<HallService>();
+        public ICollection<HallAmenity> AvailableAmenities { get; set; } = new List<HallAmenity>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }

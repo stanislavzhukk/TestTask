@@ -1,3 +1,4 @@
+using API.Middleware;
 using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
@@ -5,6 +6,7 @@ using Domain.Models;
 using Infrastructure.BackgroundServices;
 using Infrastructure.Caching;
 using Infrastructure.Identity;
+using Infrastructure.Persistence;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repositories;
 using Infrastructure.Seeders;
@@ -13,7 +15,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,11 +72,15 @@ builder.Services.AddAuthorization();
 
 //Add repositories
 builder.Services.AddScoped<IRefreshTokensRepository, RefreshTokensRepository>();
+builder.Services.AddScoped<IHallRepository, HallRepository>();
+builder.Services.AddScoped<IAmenityRepository, AmenityRepository>();
 
 //Add services
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtService>();
+builder.Services.AddScoped<IHallService, HallService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddTransient<IHashService, HashService>();
 
@@ -143,6 +148,8 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"error during migration/seeds: {ex.Message} | {ex.InnerException}");
     }
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

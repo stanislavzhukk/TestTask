@@ -13,6 +13,9 @@ namespace Infrastructure.Persistence.Context
         { }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Hall> Halls { get; set; }
+        public DbSet<Amenity> Amenities { get; set; }
+        public DbSet<HallAmenity> HallAmenities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -27,32 +30,32 @@ namespace Infrastructure.Persistence.Context
                 .HasIndex(rt => rt.Token)
                 .IsUnique();
 
-            builder.Entity<HallService>()
-            .HasKey(rs => new { rs.HallId, rs.ServiceId });
+            builder.Entity<HallAmenity>()
+            .HasKey(ha => new { ha.HallId, ha.AmenityId });
 
-            builder.Entity<HallService>()
-                .HasOne(rs => rs.Hall)
-                .WithMany(r => r.AvailableServices)
-                .HasForeignKey(rs => rs.HallId);
+            builder.Entity<HallAmenity>()
+                .HasOne(ha => ha.Hall)
+                .WithMany(h => h.AvailableAmenities)
+                .HasForeignKey(ha => ha.HallId);
 
-            builder.Entity<HallService>()
-                .HasOne(rs => rs.Service)
+            builder.Entity<HallAmenity>()
+                .HasOne(ha => ha.Amenity)
                 .WithMany()
-                .HasForeignKey(rs => rs.ServiceId);
+                .HasForeignKey(ha => ha.AmenityId);
 
-            builder.Entity<BookingService>()
-                .HasKey(bs => new { bs.BookingId, bs.ServiceId });
+            builder.Entity<BookingAmenity>()
+                .HasKey(bs => new { bs.BookingId, bs.AmenityId });
 
             builder.Entity<Booking>()
                 .HasOne(b => b.Hall)
-                .WithMany(r => r.Bookings)
+                .WithMany(h => h.Bookings)
                 .HasForeignKey(b => b.HallId);
 
             builder.Entity<Booking>()
                 .HasIndex(b => new { b.HallId, b.StartTime, b.EndTime });
 
             builder.Entity<Hall>()
-                .Property(r => r.BaseHourlyRate)
+                .Property(h => h.BaseHourlyRate)
                 .HasColumnType("decimal(10,2)");
 
         }
