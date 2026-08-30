@@ -52,7 +52,7 @@ namespace Application.Services
             RateType.Peak => 1.15m,
             RateType.Evening => 0.8m,
             RateType.Standard => 1.0m,
-            _ => throw new ArgumentOutOfRangeException(nameof(rateType))
+            _ => throw new ArgumentOutOfRangeException(nameof(rateType), rateType, $"Unhandled rate type: {rateType}")
         };
     }
 }

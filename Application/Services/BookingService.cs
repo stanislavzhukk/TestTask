@@ -34,7 +34,7 @@ namespace Application.Services
             }
             if (booking.UserId != userId)
             {
-                throw new UnauthorizedAccessException("You are not authorized to cancel this booking.");
+                throw new ForbiddenException("You are not authorized to cancel this booking.");
             }
             booking.Status = BookingStatus.Cancelled;
             await _bookingRepository.UpdateAsync(booking);
@@ -106,9 +106,17 @@ namespace Application.Services
             {
                 Id = booking.Id,
                 HallId = booking.HallId,
+                HallName = hall.Name,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
-                TotalPrice = booking.TotalCost
+                Status = booking.Status,
+                TotalPrice = booking.TotalCost,
+                BookingAmenities = booking.SelectedAmenities.Select(a => new BookingAmenityResponse
+                {
+                    AmenityId = a.AmenityId,
+                    Name = a.Amenity.Name,
+                    Price = a.PriceAtBooking
+                }).ToList(),
             };
         }
 

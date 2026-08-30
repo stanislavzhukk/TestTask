@@ -17,12 +17,12 @@ namespace Infrastructure.Seeders
 
             var halls = new List<Hall>
             {
-                new Hall { Title = "Hall A", Capacity = 50, BaseHourlyRate = 2000m },
-                new Hall { Title = "Hall B", Capacity = 30, BaseHourlyRate = 3500m },
-                new Hall { Title = "Hall C", Capacity = 200, BaseHourlyRate = 1500m }
+                new Hall { Name = "Hall A", Capacity = 50, BaseHourlyRate = 2000m },
+                new Hall { Name = "Hall B", Capacity = 30, BaseHourlyRate = 3500m },
+                new Hall { Name = "Hall C", Capacity = 200, BaseHourlyRate = 1500m }
             };
 
-            var amenities = new List<Amenity>
+                        var amenities = new List<Amenity>
             {
                 new Amenity {Id = Guid.NewGuid(), Name = "Projector" },
                 new Amenity {Id = Guid.NewGuid(), Name = "Wi-Fi" },

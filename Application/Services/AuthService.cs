@@ -134,7 +134,7 @@ namespace Application.Services
 
             if (user != null)
             {
-                throw new BadRequestException("Email already taken.");
+                throw new ConflictException("Email already taken.");
             }
 
             var userId = Guid.NewGuid();

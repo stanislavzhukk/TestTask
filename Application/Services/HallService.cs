@@ -30,7 +30,7 @@ namespace Application.Services
                 var hall = new Hall
                 {
                     Id = Guid.NewGuid(),
-                    Title = request.Name,
+                    Name = request.Name,
                     Capacity = request.Capacity,
                     BaseHourlyRate = request.PricePerHour,
                     IsActive = true
@@ -38,7 +38,7 @@ namespace Application.Services
 
                 var hallAmenities = new List<HallAmenity>();
 
-                foreach (var s in request.Services)
+                foreach (var s in request.Amenities)
                 {
                     var amenity = await _amenityRepository.GetByNameAsync(s.Name);
                     if (amenity == null)
@@ -99,7 +99,7 @@ namespace Application.Services
                 throw new NotFoundException($"Hall with ID {hallId} not found.");
             }
 
-            hall.Title = request.Name ?? hall.Title;
+            hall.Name = request.Name ?? hall.Name;
             hall.Capacity = request.Capacity ?? hall.Capacity;
             hall.BaseHourlyRate = request.PricePerHour ?? hall.BaseHourlyRate;
 
@@ -175,10 +175,10 @@ namespace Application.Services
         private static HallResponse MapToResponse(Hall hall) => new()
         {
             Id = hall.Id,
-            Name = hall.Title,
+            Name = hall.Name,
             Capacity = hall.Capacity,
             Price = hall.BaseHourlyRate,
-            Services = hall.AvailableAmenities.Select(a => new HallAmenityResponse
+            AvailableAmenities = hall.AvailableAmenities.Select(a => new HallAmenityResponse
             {
                 Id = a.Amenity.Id,
                 Name = a.Amenity.Name,
