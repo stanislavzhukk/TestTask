@@ -9,7 +9,12 @@ namespace Infrastructure.Seeders
         public static async Task SeedUsers(IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+            if (userManager.Users.Count() > 2)
+            {
+                return;
+            }
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+
 
             var adminEmail = "admin@example.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);

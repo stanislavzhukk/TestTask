@@ -25,6 +25,21 @@ namespace Application.Services
 
         }
 
+        public async Task CancelBookingAsync(Guid userId, Guid bookingId)
+        {
+            var booking = await _bookingRepository.GetBookingByIdAsync(bookingId);
+            if (booking == null)
+            {
+                throw new NotFoundException($"Booking with ID {bookingId} not found.");
+            }
+            if (booking.UserId != userId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to cancel this booking.");
+            }
+            booking.Status = BookingStatus.Cancelled;
+            await _bookingRepository.UpdateAsync(booking);
+        }
+
         public async Task<BookingResponse> CreateBookingAsync(Guid userId, CreateBookingRequest request)
         {
             var hall = await _hallService.GetHallByIdAsync(request.HallId);
@@ -110,6 +125,7 @@ namespace Application.Services
                 Id = booking.Id,
                 HallId = booking.HallId,
                 StartTime = booking.StartTime,
+                Status = booking.Status,
                 EndTime = booking.EndTime,
                 TotalPrice = booking.TotalCost
             };

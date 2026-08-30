@@ -24,6 +24,14 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetBookingById), new { id = response.Id }, response);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> CancelBooking(Guid id)
+        {
+            var userId = User.GetUserId();
+            await _bookingService.CancelBookingAsync(userId, id);
+            return NoContent();
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookingById(Guid id)
         {

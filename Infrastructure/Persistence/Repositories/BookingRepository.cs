@@ -27,21 +27,18 @@ namespace Infrastructure.Persistence.Repositories
             return booking;
         }
 
-        public async Task DeleteAsync(Booking booking)
-        {
-            _context.Bookings.Remove(booking);
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<List<Booking>> GetAllBookingsAsync()
         {
-            return await _context.Bookings.ToListAsync();
+            return await _context.Bookings
+                .Where(b => b.Status != BookingStatus.Cancelled)
+                .ToListAsync();
         }
 
         public async Task<Booking?> GetBookingByIdAsync(Guid id)
         {
             return await _context.Bookings
                 .AsNoTracking()
+                .Where(b => b.Status != BookingStatus.Cancelled)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 

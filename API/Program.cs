@@ -142,15 +142,11 @@ using (var scope = app.Services.CreateScope())
         }
 
         await RolesSeeder.SeedRoles(services);
-
-        if (userManager.Users.Count() < 2)
-        {
-            await UsersSeeder.SeedUsers(services);
-        }
+        await UsersSeeder.SeedUsers(services);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"error during migration/seeds: {ex.Message} | {ex.InnerException}");
+        Console.WriteLine($"Error during migration/seeds: {ex.Message} | {ex.InnerException}");
     }
 }
 

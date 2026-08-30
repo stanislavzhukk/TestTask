@@ -13,7 +13,6 @@ namespace Domain.Interfaces
         Task<Booking?> GetBookingByIdAsync(Guid id);
         Task<Booking> AddAsync(Booking booking);
         Task UpdateAsync(Booking booking);
-        Task DeleteAsync(Booking booking);
         Task<bool> HasOverlapAsync(Guid hallId, DateTime startTime, DateTime endTime);
     }
 }
