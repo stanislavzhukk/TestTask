@@ -1,17 +1,7 @@
-# Boilerplate: API + PostgreSQL + PGAdmin
+# Conference Hall Booking API
+API for managing conference hall bookings and rentals: searching for available halls, creating bookings, and calculating rental cost based on time and selected services.
 
-This repository provides a ready-to-use local development environment with:
-- .NET 8 (ASP.NET Core)
-- PostgreSQL 16
-- PGAdmin 4
-- Docker & Docker Compose
-- Entity Framework Core
-- Redis
-- Mailpit/Mailgun templates
-
-Everything is wired together with Docker Compose for easy setup.
-
----
+Full project documentation (business logic, architecture, design decisions) is provided separately as documentation.pdf.
 
 ## Tech Stack
 
@@ -20,6 +10,18 @@ Everything is wired together with Docker Compose for easy setup.
 - PGAdmin 4
 - Docker & Docker Compose
 - Entity Framework Core
+- Redis(not used here, only possibility)
+- Swagger / OpenAPI
+
+
+## Architecture
+ 
+```
+Domain          — entities, repository interfaces, domain rules
+Application     — services, DTOs, service interfaces
+Infrastructure  — EF Core, repositories, migrations, Identity
+API             — controllers, Swagger, middleware
+```
 
 ---
 
@@ -42,13 +44,18 @@ Create a `.env` file from the example:
 cp .env.example .env
 ```
 
-Build and start all services:
+### 3 Build and start all services:
 
 ```bash
 docker compose up --build
 ```
 
- Services & URLs
+Database migrations are applied and seed data (3 halls, 3 base
+amenities) is loaded automatically on startup.
+
+---
+
+### 4 Services & URLs
 
 - PGAdmin (PostgreSQL UI)
 http://localhost:5050/

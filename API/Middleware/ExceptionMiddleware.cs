@@ -27,19 +27,19 @@ namespace API.Middleware
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = ex.StatusCode;
 
-                //List<string>? errors = new List<string>();
-                //if (ex.Errors != null && ex.Errors.Count != 0)
-                //{
-                //    foreach (var error in ex.Errors)
-                //    {
-                //        errors.Add(error);
-                //    }
-                //}
+                List<string>? errors = new List<string>();
+                if (ex.Errors != null && ex.Errors.Count != 0)
+                {
+                    foreach (var error in ex.Errors)
+                    {
+                        errors.Add(error);
+                    }
+                }
 
                 var response = new
                 {
                     message = ex.Message,
-                    //errors = errors.ToArray()
+                    errors = errors.ToArray()
                 };
                 await context.Response.WriteAsync(JsonSerializer.Serialize(response));
             }
