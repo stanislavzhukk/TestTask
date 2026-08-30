@@ -41,6 +41,30 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(h => h.Id == hallId);
         }
 
+        public async Task<List<Hall>> SearchHallsAsync(DateTime? startTime, DateTime? endTime, int? minCapacity)
+        {
+            var query = _context.Halls
+                .Include(h => h.AvailableAmenities)
+                    .ThenInclude(ha => ha.Amenity)
+                .Where(h => h.IsActive)
+                .AsQueryable();
+
+            if (minCapacity.HasValue)
+            {
+                query = query.Where(h => h.Capacity >= minCapacity.Value);
+            }
+
+            if (startTime.HasValue && endTime.HasValue)
+            {
+                query = query.Where(h => !_context.Bookings.Any(b =>
+                    b.HallId == h.Id &&
+                    b.Status != BookingStatus.Cancelled &&
+                    startTime.Value < b.EndTime && endTime.Value > b.StartTime));
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task<Hall> UpdateHallAsync(Hall hall)
         {
             _context.Halls.Update(hall);

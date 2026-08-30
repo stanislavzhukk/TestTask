@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Application.DTO.Requests.Booking
 {
     public class CreateBookingRequest
     {
-        public Guid HallId { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public List<Guid> SelectedAmenityIds { get; set; } = new List<Guid>();
+        public required Guid HallId { get; set; }
+        public required DateOnly Date { get; set; }
+        public required TimeOnly StartTime { get; set; }
+        public required TimeOnly EndTime { get; set; }
+        public List<Guid> SelectedAmenityIds { get; set; } = new();
     }
 }

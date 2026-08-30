@@ -25,6 +25,13 @@ namespace API.Controllers
             return CreatedAtAction(nameof(GetHallById), new { id = response.Id }, response);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchHalls([FromQuery] SearchHallsRequest request)
+        {
+            var response = await _hallService.SearchHallsAsync(request);
+            return Ok(response);
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHallById(Guid id)
         {

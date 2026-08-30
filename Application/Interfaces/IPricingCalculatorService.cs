@@ -8,6 +8,6 @@ namespace Application.Interfaces
 {
     public interface IPricingCalculatorService
     {
-        Task<decimal> CalculateTotalPriceAsync(Guid hallId, decimal baseHourlyRate, DateTime startTime, DateTime endTime, List<Guid> selectedAmenityIds);
+       decimal CalculateHallCost(decimal baseHourlyRate, DateTime startTime, DateTime endTime);
     }
 }

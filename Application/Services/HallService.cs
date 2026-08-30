@@ -185,5 +185,13 @@ namespace Application.Services
                 Price = a.Price
             }).ToList()
         };
+
+        public async Task<List<HallResponse>> SearchHallsAsync(SearchHallsRequest request)
+        {
+            var searchStart = request.Date.ToDateTime(request.StartTime, DateTimeKind.Utc);
+            var searchEnd = request.Date.ToDateTime(request.EndTime, DateTimeKind.Utc);
+            var halls = await _hallRepository.SearchHallsAsync(searchStart, searchEnd, request.MinCapacity);
+            return halls.Select(MapToResponse).ToList();
+        }
     }
 }

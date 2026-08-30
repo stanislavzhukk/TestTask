@@ -82,7 +82,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtService>();
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IPricingCalculatorService, PricingCalculatorService>();
+builder.Services.AddSingleton<IPricingCalculatorService, PricingCalculatorService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

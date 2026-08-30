@@ -11,6 +11,7 @@ namespace Application.Interfaces
         Task<HallResponse> GetHallByIdAsync(Guid hallId);
         Task<HallResponse> CreateHallAsync(CreateHallRequest request);
         Task<HallResponse> UpdateHallAsync(Guid hallId, UpdateHallRequest request);
+        Task<List<HallResponse>> SearchHallsAsync(SearchHallsRequest request);
         Task<HallAmenityResponse> AddAmenityAsync(Guid hallId, CreateAmenityRequest request);
         Task RemoveAmenityAsync(Guid hallId, Guid amenityId);
         Task<HallAmenityResponse> UpdateAmenityPriceAsync(Guid hallId, Guid amenityId, UpdateHallAmenityPriceRequest request);

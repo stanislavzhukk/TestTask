@@ -11,14 +11,18 @@ namespace Application.Services
     {
         private readonly IPricingCalculatorService _pricingCalculatorService;
         private readonly IHallService _hallService;
+        private readonly IAmenityRepository _amenityRepository;
         private readonly IBookingRepository _bookingRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public BookingService(IPricingCalculatorService pricingCalculatorService, IHallService hallService, IBookingRepository bookingRepository, IUnitOfWork unitOfWork)
+        public BookingService(IPricingCalculatorService pricingCalculatorService, IHallService hallService, 
+            IBookingRepository bookingRepository, IUnitOfWork unitOfWork, IAmenityRepository amenityRepository)
         {
             _pricingCalculatorService = pricingCalculatorService;
             _hallService = hallService;
             _bookingRepository = bookingRepository;
             _unitOfWork = unitOfWork;
+            _amenityRepository = amenityRepository;
+
         }
 
         public async Task<BookingResponse> CreateBookingAsync(Guid userId, CreateBookingRequest request)
@@ -35,32 +39,49 @@ namespace Application.Services
             }
 
             Booking booking = null!;
+            var startTime = request.Date.ToDateTime(request.StartTime, DateTimeKind.Utc);
+            var endTime = request.Date.ToDateTime(request.EndTime, DateTimeKind.Utc);
 
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                var hasOverlap = await _bookingRepository.HasOverlapAsync(request.HallId, request.StartTime, request.EndTime);
+                var hasOverlap = await _bookingRepository.HasOverlapAsync(request.HallId, startTime, endTime);
                 if (hasOverlap)
                 {
                     throw new BadRequestException("This hall is already booked for the selected time range.");
                 }
 
-                var cost = await _pricingCalculatorService.CalculateTotalPriceAsync(
-                    request.HallId, hall.Price, request.StartTime, request.EndTime, request.SelectedAmenityIds);
+                var selectedAmenities = new List<HallAmenity>();
+                foreach (var amenityId in request.SelectedAmenityIds)
+                {
+                    var hallAmenity = await _amenityRepository.GetHallAmenityAsync(request.HallId, amenityId);
+                    if (hallAmenity == null)
+                    {
+                        throw new BadRequestException($"Amenity with ID {amenityId} is not available for this hall.");
+                    }
+                    selectedAmenities.Add(hallAmenity);
+                }
+
+                var hallCost = _pricingCalculatorService.CalculateHallCost(hall.Price, startTime, endTime);
+                var amenitiesCost = selectedAmenities.Sum(a => a.Price);
+                var totalCost = hallCost + amenitiesCost;
+                var bookingId = Guid.NewGuid();
 
                 booking = new Booking
                 {
-                    Id = Guid.NewGuid(),
+                    Id = bookingId,
                     HallId = request.HallId,
-                    StartTime = request.StartTime,
-                    EndTime = request.EndTime,
+                    StartTime = startTime,
+                    EndTime = endTime,
                     Status = BookingStatus.Confirmed,
-                    TotalCost = cost,
+                    TotalCost = totalCost,
                     UserId = userId,
                     CreatedAt = DateTime.UtcNow,
-                    SelectedAmenities = request.SelectedAmenityIds.Select(aid => new BookingAmenity
+                    SelectedAmenities = selectedAmenities.Select(a => new BookingAmenity
                     {
-                        AmenityId = aid
-                    }).ToList() //bad
+                        BookingId = bookingId,
+                        AmenityId = a.AmenityId,
+                        PriceAtBooking = a.Price
+                    }).ToList()
                 };
 
                 await _bookingRepository.AddAsync(booking);
