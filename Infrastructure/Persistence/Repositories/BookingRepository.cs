@@ -20,7 +20,7 @@ namespace Infrastructure.Persistence.Repositories
                 .AnyAsync(b => b.HallId == hallId && b.StartTime < endTime && b.EndTime > startTime);
         }
 
-        public async Task<Booking> AddAsync(Booking booking)
+        public async Task<Booking> AddBookingAsync(Booking booking)
         {
             await _context.Bookings.AddAsync(booking);
             await _context.SaveChangesAsync();
@@ -42,10 +42,18 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task UpdateAsync(Booking booking)
+        public async Task UpdateBookingAsync(Booking booking)
         {
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
+        }
+
+        public IQueryable<Booking> QueryInRange(DateTime start, DateTime end)
+        {
+            return _context.Bookings
+                .Where(b => b.Status != BookingStatus.Cancelled)
+                .Where(b => b.StartTime >= start && b.StartTime <= end)
+                .AsNoTracking();
         }
     }
 }

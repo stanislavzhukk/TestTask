@@ -11,8 +11,10 @@ namespace Domain.Interfaces
     {
         Task<List<Booking>> GetAllBookingsAsync();
         Task<Booking?> GetBookingByIdAsync(Guid id);
-        Task<Booking> AddAsync(Booking booking);
-        Task UpdateAsync(Booking booking);
+        Task<Booking> AddBookingAsync(Booking booking);
+        Task UpdateBookingAsync(Booking booking);
         Task<bool> HasOverlapAsync(Guid hallId, DateTime startTime, DateTime endTime);
+
+        IQueryable<Booking> QueryInRange(DateTime start, DateTime end);
     }
 }

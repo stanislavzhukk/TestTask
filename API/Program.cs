@@ -85,13 +85,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, JwtService>();
 builder.Services.AddScoped<IHallService, HallService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddSingleton<IPricingCalculatorService, PricingCalculatorService>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-
 builder.Services.AddTransient<IHashService, HashService>();
-
 builder.Services.AddHostedService<TokenCleanupService>();
 
 builder.Services.AddControllers()

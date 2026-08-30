@@ -37,7 +37,7 @@ namespace Application.Services
                 throw new ForbiddenException("You are not authorized to cancel this booking.");
             }
             booking.Status = BookingStatus.Cancelled;
-            await _bookingRepository.UpdateAsync(booking);
+            await _bookingRepository.UpdateBookingAsync(booking);
         }
 
         public async Task<BookingResponse> CreateBookingAsync(Guid userId, CreateBookingRequest request)
@@ -99,7 +99,7 @@ namespace Application.Services
                     }).ToList()
                 };
 
-                await _bookingRepository.AddAsync(booking);
+                await _bookingRepository.AddBookingAsync(booking);
             });
 
             return new BookingResponse
