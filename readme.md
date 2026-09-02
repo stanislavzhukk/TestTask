@@ -1,4 +1,4 @@
-# Conference Hall Booking API
+# Conference Hall Booking API(Test assignment)
 API for managing conference hall bookings and rentals: searching for available halls, creating bookings, and calculating rental cost based on time and selected services.
 
 Full project documentation (business logic, architecture, design decisions) is provided separately as documentation.pdf.
